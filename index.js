@@ -1,49 +1,38 @@
-const getMaxSolution = (n) => {
-    const unitArr = [
-        { name: 't', u: 5, e: 1500 },
-        { name: 'p', u: 4, e: 1000 },
-        { name: 'c', u: 10, e: 2000 }
-    ];
+function getMaxSolution(n) {
+  const all = [];
 
-    const obj = {
-        't': {
-            count: 0,
-            maxProfit: 0
-        }, 'p': {
-            count: 0,
-            maxProfit: 0
-        }, 'c': {
-            count: 0,
-            maxProfit: 0
+  for (let t = 0; t * 5 <= n; t++) {
+    for (let p = 0; t * 5 + p * 4 <= n; p++) {
+      for (let c = 0; t * 5 + p * 4 + c * 10 <= n; c++) {
+        let time = 0;
+        let money = 0;
+        for (let i = 0; i < t; i++) {
+          time += 5;
+          money += (n - time) * 1500;
         }
+        for (let i = 0; i < p; i++) {
+          time += 4;
+          money += (n - time) * 1000;
+        }
+        for (let i = 0; i < c; i++) {
+          time += 10;
+          money += (n - time) * 2000;
+        }
+
+        all.push({ t, p, c, time, money });
+      }
     }
+  }
 
-    let maxProfit = 0
+  const best = Math.max(...all.map((x) => x.money));
+  const ans = all
+    .filter((x) => x.money === best && x.time < n)
+    .map((x) => ({ T: x.t, P: x.p, C: x.c }));
 
-    for (let i = 0; i < unitArr.length; i++) {
-        const unit = unitArr[i].u;
-        let currentTime = 0;
-        while (currentTime + unit <= n) {
-            currentTime += unit;
-            const profit = (n - currentTime) * unitArr[i].e;
-            obj[unitArr[i].name].maxProfit += profit
-            obj[unitArr[i].name].count++;
-        }
-        if (obj[unitArr[i].name].maxProfit > maxProfit) {
-            maxProfit = obj[unitArr[i].name].maxProfit;
-        }
-    }
-
-    const possibilities = []
-    Object.entries(obj).reduce((acc, [name, valueObj]) => {
-        const obj = { 't': 0, 'p': 0, 'c': 0}
-        if (valueObj.maxProfit === maxProfit) {
-            obj[name] += valueObj.count;
-            possibilities.push(obj)
-        }
-    }, {})
-
-    return possibilities;
+  return { maxEarnings: best, bestSolution: ans };
 }
 
-getMaxSolution(13)
+console.log(getMaxSolution(7));
+console.log(getMaxSolution(8));
+console.log(getMaxSolution(13));
+console.log(getMaxSolution(49));
